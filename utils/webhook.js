@@ -1,20 +1,20 @@
+const fetch = require('node-fetch')
+
 const sendDiscordMessage = waifu => {
-  const id = process.env.WEB_HOOK_ID
-  const token = process.env.WEB_HOOK_TOKEN
+  const url = process.env.WEB_HOOK_URL
+  const data = {
+    content: "Pancho yamete kudasai"
+  }
 
-  console.log(id)
-  console.log(token)
-  // const webhookClient = new Discord.WebhookClient(id, token);
-
-  // const embed = new Discord.MessageEmbed()
-  //   .setTitle('Some Title')
-  //   .setColor('#0099ff')
-  //   .setImage('https://i.imgur.com/wSTFkRM.png')
-  //   .setURL(waifu.bioUrl)
-
-  // webhookClient.send('Webhook test', {
-  //   embeds: [embed],
-  // })
+  fetch(url, {
+    method: 'POST', // or 'PUT'
+    body: JSON.stringify(data), // data can be `string` or {object}!
+    headers:{
+      'Content-Type': 'application/json'
+    }
+  }).then(res => res.json())
+  .catch(error => console.error('Error:', error))
+  .then(response => console.log('Success:', response));
 }
 
 module.exports = { sendDiscordMessage }
