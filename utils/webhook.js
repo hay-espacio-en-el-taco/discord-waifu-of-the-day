@@ -2,8 +2,18 @@ const fetch = require('node-fetch')
 
 const sendDiscordMessage = waifu => {
   const url = process.env.WEB_HOOK_URL
+
+  const embeded = {
+    title: waifu.name,
+    type: 'rich',
+    url: waifu.bioUrl,
+    image: waifu.image,
+    description: waifu.extract,
+  }
+
   const data = {
-    content: "Pancho yamete kudasai"
+    content: "It's waifu time",
+    embeds: [embeded]
   }
 
   fetch(url, {
