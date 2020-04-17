@@ -21,7 +21,7 @@ const sendDiscordMessage = waifu => {
     content: waifu.bioUrl,
   }
 
-  post(simpleData, url)
+  setTimeout(post(simpleData, url), 2000)
 }
 
 const post = (data, url) => {
@@ -33,7 +33,7 @@ const post = (data, url) => {
     }
   }).then(res => res.json())
   .catch(error => console.error('Error:', error))
-  .then(response => console.log('Success:', response));
+  .then(response => console.info('Success:', response));
 }
 
 module.exports = { sendDiscordMessage }
