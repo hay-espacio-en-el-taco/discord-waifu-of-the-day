@@ -10,11 +10,21 @@ const sendDiscordMessage = waifu => {
     description: waifu.extract,
   }
 
-  const data = {
+  const richData = {
     content: "It's waifu time",
     embeds: [embededPost]
   }
 
+  post(richData, url)
+
+  const simpleData = {
+    content: waifu.bioUrl,
+  }
+
+  post(simpleData, url)
+}
+
+const post = (data, url) => {
   fetch(url, {
     method: 'POST', // or 'PUT'
     body: JSON.stringify(data), // data can be `string` or {object}!
