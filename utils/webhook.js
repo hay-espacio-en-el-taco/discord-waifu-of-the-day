@@ -22,6 +22,12 @@ const sendDiscordMessage = waifu => {
   }
 
   setTimeout(post(simpleData, url), 2000)
+  
+  const remData = {
+    content: "/rem",
+  }
+
+  setTimeout(post(remData, url), 4000)
 }
 
 const post = (data, url) => {
