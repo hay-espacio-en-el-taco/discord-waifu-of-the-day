@@ -28,3 +28,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm start
+      env:
+        WEB_HOOK_URL: ${{ secrets.WEB_HOOK_URL }}
+
