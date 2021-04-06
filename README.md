@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/hay-espacio-en-el-taco/discord-waifu-of-the-day.svg?branch=master)](https://travis-ci.org/hay-espacio-en-el-taco/discord-waifu-of-the-day)
+[![Build](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/build.yml/badge.svg)](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/build.yml)
 
+[![Publish to Discord](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/publish.yml/badge.svg)](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/publish.yml)
 # discord-waifu-of-the-day
 
 Little app for scrap https://mywaifulist.moe/dash and get the Waifu of the day section and publish in a discord text channel.
