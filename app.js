@@ -1,6 +1,6 @@
-const scraper = require('./utils/scraper')
+const { getWaifu } = require('./utils/puppeteerScrapper')
 const weebhook = require('./utils/webhook')
 
-scraper.getWaifu().then(waifu => {
+getWaifu().then(waifu => {
   weebhook.sendDiscordMessage(waifu)
 })
