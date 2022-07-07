@@ -20,9 +20,9 @@
   },
   "homepage": "https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day#readme",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "puppeteer": "^15.3.1"
   }
 }
