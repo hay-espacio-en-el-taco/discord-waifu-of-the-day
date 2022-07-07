@@ -80,67 +80,6 @@ const getWaifu = async () => {
     return element;
   }
 
-  async function waitForElement(step, frame, timeout) {
-    const count = step.count || 1;
-    const operator = step.operator || '>=';
-    const comp = {
-      '==': (a, b) => a === b,
-      '>=': (a, b) => a >= b,
-      '<=': (a, b) => a <= b,
-    };
-    const compFn = comp[operator];
-    await waitForFunction(async () => {
-      const elements = await querySelectorsAll(step.selectors, frame);
-      return compFn(elements.length, count);
-    }, timeout);
-  }
-
-  async function querySelectorsAll(selectors, frame) {
-    for (const selector of selectors) {
-      const result = await querySelectorAll(selector, frame);
-      if (result.length) {
-        return result;
-      }
-    }
-    return [];
-  }
-
-  async function querySelectorAll(selector, frame) {
-    if (!Array.isArray(selector)) {
-      selector = [selector];
-    }
-    if (!selector.length) {
-      throw new Error('Empty selector provided to querySelectorAll');
-    }
-    let elements = [];
-    for (let i = 0; i < selector.length; i++) {
-      const part = selector[i];
-      if (i === 0) {
-        elements = await frame.$$(part);
-      } else {
-        const tmpElements = elements;
-        elements = [];
-        for (const el of tmpElements) {
-          elements.push(...(await el.$$(part)));
-        }
-      }
-      if (elements.length === 0) {
-        return [];
-      }
-      if (i < selector.length - 1) {
-        const tmpElements = [];
-        for (const el of elements) {
-          const newEl = (await el.evaluateHandle(el => el.shadowRoot ? el.shadowRoot : el)).asElement();
-          if (newEl) {
-            tmpElements.push(newEl);
-          }
-        }
-        elements = tmpElements;
-      }
-    }
-    return elements;
-  }
-
   async function waitForFunction(fn, timeout) {
     let isActive = true;
     setTimeout(() => {
@@ -182,12 +121,10 @@ const getWaifu = async () => {
       })
     });
 
-
     waifu.name = name;
     waifu.bioUrl = `https://mywaifulist.moe${href}`;
     waifu.imageUrl = image;
     await Promise.all(promises);
-
   }
   {
     const targetPage = page;
@@ -207,7 +144,6 @@ const getWaifu = async () => {
       })
     });
     waifu.extract = extract;
-
   }
 
   await browser.close();
