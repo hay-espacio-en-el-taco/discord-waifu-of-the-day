@@ -6,6 +6,7 @@ const getWaifu = async () => {
     imageUrl: '',
     bioUrl: '',
     extract: '',
+    appearsIn: '',
   }
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -22,34 +23,6 @@ const getWaifu = async () => {
       }
     }
     throw new Error('Could not find element for selectors: ' + JSON.stringify(selectors));
-  }
-
-  async function scrollIntoViewIfNeeded(element, timeout) {
-    await waitForConnected(element, timeout);
-    const isInViewport = await element.isIntersectingViewport({ threshold: 0 });
-    if (isInViewport) {
-      return;
-    }
-    await element.evaluate(element => {
-      element.scrollIntoView({
-        block: 'center',
-        inline: 'center',
-        behavior: 'auto',
-      });
-    });
-    await waitForInViewport(element, timeout);
-  }
-
-  async function waitForConnected(element, timeout) {
-    await waitForFunction(async () => {
-      return await element.getProperty('isConnected');
-    }, timeout);
-  }
-
-  async function waitForInViewport(element, timeout) {
-    await waitForFunction(async () => {
-      return await element.isIntersectingViewport({ threshold: 0 });
-    }, timeout);
   }
 
   async function waitForSelector(selector, frame, options) {
@@ -78,21 +51,6 @@ const getWaifu = async () => {
       throw new Error('Could not find element: ' + selector.join('|'));
     }
     return element;
-  }
-
-  async function waitForFunction(fn, timeout) {
-    let isActive = true;
-    setTimeout(() => {
-      isActive = false;
-    }, timeout);
-    while (isActive) {
-      const result = await fn();
-      if (result) {
-        return;
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    throw new Error('Timed out');
   }
   {
     const targetPage = page;
@@ -128,8 +86,7 @@ const getWaifu = async () => {
   }
   {
     const targetPage = page;
-    const element = await waitForSelectors([["aria/Display picture for Amira[role=\"img\"]"], ["#widget-waifu-of-the-day > div.w-full > a > img"]], targetPage, { timeout, visible: true });
-    await scrollIntoViewIfNeeded(element, timeout);
+    const element = await waitForSelectors([["#widget-waifu-of-the-day > div.w-full > a > img"]], targetPage, { timeout, visible: true });
     await element.click({
       offset: {
         x: 127,
@@ -144,12 +101,25 @@ const getWaifu = async () => {
       })
     });
     waifu.extract = extract;
+
+    await waitForSelectors([["#waifu-core-information a"]], targetPage, { timeout, visible: true });
+    const [appearsIn] = await targetPage.$$eval('#waifu-core-information a', elements => {
+      return elements.map(elem => {
+        return {
+          url: 'https://mywaifulist.moe' + elem.getAttribute('href'),
+          text: elem.textContent
+        };
+      })
+    });
+
+    waifu.appearsIn = appearsIn;
+
   }
 
   await browser.close();
 
   return waifu;
-  
+
 };
 
 module.exports = { getWaifu }
