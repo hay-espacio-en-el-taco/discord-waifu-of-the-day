@@ -18,9 +18,13 @@ const sendDiscordMessage = async waifu => {
     type: 'rich',
     url: waifu.bioUrl,
     description: waifu.extract,
-    image: {url: waifu.imageUrl}
+    image: { url: waifu.imageUrl },
+    author: {
+      name: 'Appears In: ' + waifu.appearsIn.text,
+      url: waifu.appearsIn.url
+    }
   }
- 
+
   const richData = {
     content: "**It's waifu time**",
     embeds: [embededPost]
