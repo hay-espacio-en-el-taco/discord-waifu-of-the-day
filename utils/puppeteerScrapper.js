@@ -10,14 +10,14 @@ const getWaifu = async () => {
   }
 
 
-  const hrefSelector = "#widget-waifu-of-the-day > a";
-  const nameSelector = "#widget-waifu-of-the-day .text-zinc-100";
-  const imageSelector = "#widget-waifu-of-the-day > a > img";
-  const descriptionSelector = "#description";
-  const appearsSelector = "#waifu-core-information > div > div > a";
+  const hrefSelector = '#widget-waifu-of-the-day > a';
+  const nameSelector = '#widget-waifu-of-the-day .text-zinc-100';
+  const imageSelector = '#widget-waifu-of-the-day > a > img';
+  const descriptionSelector = '#description';
+  const appearsSelector = '#waifu-core-information > div > div > a';
 
   const browser = await puppeteer.launch();
-  console.log("Opening Browser")
+  console.info("Opening Browser")
   const page = await browser.newPage();
   page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36");
   const timeout = 5000;
@@ -69,29 +69,29 @@ const getWaifu = async () => {
     const targetPage = page;
     const promises = [];
     promises.push(targetPage.waitForNavigation());
-    console.log("Navigating to https://mywaifulist.moe/");
+    console.info("Navigating to https://mywaifulist.moe/");
     await targetPage.goto("https://mywaifulist.moe/");
-    console.log("Waiting the href");
+    console.info("Waiting the href");
     await waitForSelectors([[hrefSelector]], targetPage, { timeout, visible: true });
-    console.log("Getting the href");
+    console.info("Getting the href");
     const [href] = await targetPage.$$eval(hrefSelector, elements => {
       return elements.map(elem => {
         return elem.getAttribute('href');
       })
     });
 
-    console.log("Waiting name of the waifu");
+    console.info("Waiting name of the waifu");
     await waitForSelectors([[nameSelector]], targetPage, { timeout, visible: true });
-    console.log("Getting name of the waifu");
+    console.info("Getting name of the waifu");
     const [name] = await targetPage.$$eval(nameSelector, elements => {
       return elements.map(elem => {
         return elem.textContent;
       })
     });
 
-    console.log("Waiting image of the waifu");
+    console.info("Waiting image of the waifu");
     await waitForSelectors(["#widget-waifu-of-the-day > a > img"], targetPage, { timeout, visible: true });
-    console.log("Getting image of the waifu");
+    console.info("Getting image of the waifu");
     const [image] = await targetPage.$$eval("#widget-waifu-of-the-day > a > img", elements => {
       return elements.map(elem => {
         return elem.getAttribute('src');
@@ -105,9 +105,9 @@ const getWaifu = async () => {
   }
   {
     const targetPage = page;
-    console.log("Waiting the image to be ready");
+    console.info("Waiting the image to be ready");
     const element = await waitForSelectors([[imageSelector]], targetPage, { timeout, visible: true });
-    console.log("Clicking the image");
+    console.info("Clicking the image");
     await element.click({
       offset: {
         x: 200,
@@ -115,9 +115,9 @@ const getWaifu = async () => {
       },
     });
 
-    console.log("Waiting the Description to be ready");
+    console.info("Waiting the Description to be ready");
     await waitForSelectors([[descriptionSelector]], targetPage, { timeout, visible: true });
-    console.log("Getting Description of the waifu");
+    console.info("Getting Description of the waifu");
     const [extract] = await targetPage.$$eval(descriptionSelector, elements => {
       return elements.map(elem => {
         return elem.textContent;
@@ -125,13 +125,13 @@ const getWaifu = async () => {
     });
     waifu.extract = extract;
 
-    console.log("Waiting the anime where the waifu appears to be ready");
+    console.info("Waiting the anime where the waifu appears to be ready");
     await waitForSelectors([[appearsSelector]], targetPage, { timeout, visible: true });
-    console.log("Getting the anime where the waifu appears");
+    console.info("Getting the anime where the waifu appears");
     const [appearsIn] = await targetPage.$$eval(appearsSelector, elements => {
       return elements.map(elem => {
         return {
-          url: 'https://mywaifulist.moe' + elem.getAttribute('href'),
+          url: `https://mywaifulist.moe${elem.getAttribute('href')}`,
           text: elem.textContent
         };
       })
@@ -141,7 +141,7 @@ const getWaifu = async () => {
 
   }
 
-  console.log("Closing the browser");
+  console.info("Closing the browser");
   await browser.close();
 
   return waifu;
