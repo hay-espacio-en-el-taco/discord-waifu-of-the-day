@@ -25,6 +25,8 @@ const sendDiscordMessage = async waifu => {
     }
   }
 
+  console.info(embededPost);
+
   const richData = {
     content: "**It's waifu time**",
     embeds: [embededPost]

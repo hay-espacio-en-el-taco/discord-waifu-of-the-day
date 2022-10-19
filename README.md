@@ -3,7 +3,7 @@
 [![Publish to Discord](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/publish.yml/badge.svg)](https://github.com/hay-espacio-en-el-taco/discord-waifu-of-the-day/actions/workflows/publish.yml)
 # discord-waifu-of-the-day
 
-Little app for scrap https://mywaifulist.moe/dash and get the Waifu of the day section and publish in a discord text channel.
+Little app for scrap https://mywaifulist.moe/ and get the Waifu of the day section and publish in a discord text channel.
 
 ## How to run
 
@@ -20,3 +20,9 @@ Little app for scrap https://mywaifulist.moe/dash and get the Waifu of the day s
  * if you want to run in a CI or something like that set a env variable *WEB_HOOK_URL* with your Webhook URL as a value
 
 3. run ```npm run dev```
+
+## Run without Headless mode
+
+If you are running and debuggin locally probably you want to see step by step what's going on with the script, in that case change:
+
+```const browser = await puppeteer.launch(); ``` to ```const browser = await puppeteer.launch({headless:false, args: ['--start-maximized'] });```
