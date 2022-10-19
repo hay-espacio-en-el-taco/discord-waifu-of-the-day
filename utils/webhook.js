@@ -25,6 +25,8 @@ const sendDiscordMessage = async waifu => {
     }
   }
 
+  console.log(embededPost);
+
   const richData = {
     content: "**It's waifu time**",
     embeds: [embededPost]
@@ -35,3 +37,5 @@ const sendDiscordMessage = async waifu => {
 }
 
 module.exports = { sendDiscordMessage }
+
+
