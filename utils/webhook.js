@@ -17,12 +17,23 @@ const sendDiscordMessage = async waifu => {
     title: waifu.name,
     type: 'rich',
     url: waifu.bioUrl,
-    description: waifu.extract,
     image: { url: waifu.imageUrl },
-    author: {
-      name: 'Appears In: ' + waifu.appearsIn.text,
-      url: waifu.appearsIn.url
-    }
+    fields: [
+      {
+        name: 'Appears in:',
+        value: waifu.source,
+      },
+      {
+        name: 'Rank:',
+        value: waifu.popularity,
+        inline: true
+      },
+      {
+        name: 'Age:',
+        value: waifu.age,
+        inline: true
+      },
+    ],
   }
 
   console.info(embededPost);
@@ -34,6 +45,7 @@ const sendDiscordMessage = async waifu => {
 
   await post(richData, url)
 
+  console.info('Waifu of the day posted!')
 }
 
 module.exports = { sendDiscordMessage }
