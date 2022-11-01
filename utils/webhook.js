@@ -30,7 +30,7 @@ const sendDiscordMessage = async waifu => {
       },
       {
         name: 'Age:',
-        value: waifu.age,
+        value: waifu.age.trim() || 'N/A',
         inline: true
       },
     ],
