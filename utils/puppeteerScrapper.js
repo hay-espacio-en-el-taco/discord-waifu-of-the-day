@@ -80,7 +80,6 @@ const getWaifu = async (randomWaifu) => {
 
   console.info("Scrapping complete, closing the browser...");
   await browser.close();
-  browser =  undefined
 
   return {
     name,
