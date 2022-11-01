@@ -4,13 +4,9 @@ const nameSelector = 'h1';
 const imageSelector = '#widget-waifu-of-the-day > a > img';
 const popularitySelector = '#popularity-rank';
 const ageSelector = '#age';
-const husbandoSelector = '#waifu-classification';
 const appearsSelector = '#waifu-core-information > div > div > a';
 
 const waifuURL = "https://mywaifulist.moe/"
-const randomWaifuUrl = "https://mywaifulist.moe/random"
-
-const skipHusbandos = false
 
 const defaultTimeout = 5000;
 
@@ -31,29 +27,17 @@ const getWaifu = async (randomWaifu) => {
   const [browser, page] = await intializeScrapper()
   await page.setViewport({ "width": 1920, "height": 1080 })
 
-  const url = randomWaifu ? randomWaifuUrl : waifuURL
-  console.info(`Navigating to: ${url}`)
-  await page.goto(url, {waitUntil: "networkidle2"});
+  console.info(`Navigating to: ${waifuURL}`)
+  await page.goto(waifuURL, {waitUntil: "networkidle2"});
 
-  if (!randomWaifu) {
-    console.info("Looking for WOTD section...");
-    const section = await page.waitForSelector(imageSelector)
+  console.info("Looking for WOTD section...");
+  const section = await page.waitForSelector(imageSelector)
 
-    console.info("Loading waifu info");
-    await section.click()
-    await page.waitForNavigation({waitUntil: "networkidle2"})
-  }
+  console.info("Loading waifu info");
+  await section.click()
+  await page.waitForNavigation({waitUntil: "networkidle2"})
 
-  console.info("Detecting Husbandos...");
-  const isHusbando = await page.$(husbandoSelector)
-
-  if (skipHusbandos && isHusbando) {
-    console.info("Husbando detected, retry a random waifu...")
-    await browser.close();
-    return await getWaifu(true)
-  }
-
-  console.info("Husbandos not detected, collecting waifu data")
+  console.info("Collecting waifu data")
 
   const bioUrl = page.url()
   console.info("URL: OK...")
