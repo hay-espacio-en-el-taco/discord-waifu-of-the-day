@@ -21,7 +21,7 @@ const sendDiscordMessage = async waifu => {
     fields: [
       {
         name: 'Appears in:',
-        value: waifu.source,
+        value: waifu.appearsIn,
       },
       {
         name: 'Rank:',
