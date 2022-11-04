@@ -23,7 +23,7 @@ const intializeScrapper = async () => {
   return [browser, page];
 }
 
-const getWaifu = async (randomWaifu) => {
+const getWaifu = async () => {
   const [browser, page] = await intializeScrapper()
   await page.setViewport({ "width": 1920, "height": 1080 })
 
