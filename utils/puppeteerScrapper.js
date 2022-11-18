@@ -47,7 +47,7 @@ const getOnlyFirstParagraph = (description) => {
   }
   const firstParagraph = result[0];
 
-  return firstParagraph.length > MAX_DESCRIPTION_LIMIT ? `${firstParagraph.substring(0, 297)}...` : firstParagraph
+  return firstParagraph.length > MAX_DESCRIPTION_LIMIT ? `${firstParagraph.substring(0, MAX_DESCRIPTION_LIMIT - 3)}...` : firstParagraph
 }
 
 const intializeScrapper = async () => {
