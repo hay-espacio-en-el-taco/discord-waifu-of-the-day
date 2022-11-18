@@ -3,3 +3,4 @@ const weebhook = require('./utils/webhook')
 
 getWaifu()
   .then(waifu => weebhook.sendDiscordMessage(waifu))
+  .catch(console.error)
