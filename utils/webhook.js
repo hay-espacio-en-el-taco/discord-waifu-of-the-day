@@ -12,9 +12,11 @@ const post = (data, url) => {
 
 const sendDiscordMessage = async waifu => {
   const url = process.env.WEB_HOOK_URL
+  const characterType = waifu.isHusbando ? 'husbando' : 'waifu'
 
   const embededPost = {
     title: waifu.name,
+    description: waifu.description,
     type: 'rich',
     url: waifu.bioUrl,
     image: { url: waifu.imageUrl },
@@ -39,13 +41,14 @@ const sendDiscordMessage = async waifu => {
   console.info(embededPost);
 
   const richData = {
-    content: "**It's waifu time**",
+    content: `**It's ${characterType} time**`,
     embeds: [embededPost]
   }
 
   await post(richData, url)
 
-  console.info('Waifu of the day posted!')
+  const capitalizedType = `${characterType.charAt(0).toUpperCase()}${characterType.slice(1)}`
+  console.info(`${capitalizedType} of the day posted!`)
 }
 
 module.exports = { sendDiscordMessage }

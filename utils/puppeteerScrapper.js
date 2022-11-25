@@ -1,78 +1,153 @@
-const puppeteer = require('puppeteer'); // v13.0.0 or later
+const puppeteer = require('puppeteer') // v13.0.0 or later
 
-const nameSelector = 'h1';
-const imageSelector = '#widget-waifu-of-the-day > a > img';
-const popularitySelector = '#popularity-rank';
-const ageSelector = '#age';
-const appearsSelector = '#waifu-core-information > div > div > a';
+/**
+ * Selectors
+ */
+const nameSelector = 'h1'
+const typeOfCharacterSelector = 'h1 #waifu-classification'
+const imageSelector = '#widget-waifu-of-the-day > a > img'
+const popularitySelector = '#popularity-rank'
+const ageSelector = '#age'
+const appearsSelector = '#waifu-core-information > div > div > a'
+const descriptionSelector = '#description'
 
+/**
+ * Constants
+ */
+const MAX_DESCRIPTION_LIMIT = 300
+const HUSBANDO = 'husbando'
 const waifuURL = "https://mywaifulist.moe/"
+const defaultTimeout = 5000
 
-const defaultTimeout = 5000;
+const getValidStringOrThrowError = (str, fieldName) => {
+  if (typeof str !== 'string') {
+    throw new Error(`The "${fieldName}" value is not a string, got "${str}" instead.`)
+  }
+
+  str = str.trim()
+  if (str.length === 0) {
+    throw new Error(`The "${fieldName}" value is an empty string.`)
+  }
+
+  return str
+}
+
+const getNameAndExtractHusbando = (characterName, type) => {
+  type = ( String(type) ).trim()
+  const name = characterName.replace(type, '')
+  
+  return [ name.trim(), type.toLowerCase().includes(HUSBANDO) ]
+}
+
+const getOnlyFirstParagraph = (description) => {
+  const result = description.split('\n')
+
+  if (!result.length) {
+    return null
+  }
+  const firstParagraph = result[0];
+
+  return firstParagraph.length > MAX_DESCRIPTION_LIMIT ? `${firstParagraph.substring(0, MAX_DESCRIPTION_LIMIT - 3)}...` : firstParagraph
+}
 
 const intializeScrapper = async () => {
   console.info("Intializing Scrapper...")
-  const browser = await puppeteer.launch();
 
-  const page = await browser.newPage();
-  page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36");
-  
-  page.setDefaultTimeout(defaultTimeout);
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
 
-  console.info("Scrapper Initialized Successfully!")
-  return [browser, page];
-}
-
-const getWaifu = async () => {
-  const [browser, page] = await intializeScrapper()
+  page.setUserAgent("Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36")
+  page.setDefaultTimeout(defaultTimeout)
   await page.setViewport({ "width": 1920, "height": 1080 })
 
-  console.info(`Navigating to: ${waifuURL}`)
-  await page.goto(waifuURL, {waitUntil: "networkidle2"});
+  console.info("Scrapper Initialized Successfully!")
+  return [browser, page]
+}
 
-  console.info("Looking for WOTD section...");
+const getWaifuDataFromPage = async (page) => {
+  console.info(`Navigating to: ${waifuURL}`)
+  await page.goto(waifuURL, {waitUntil: "networkidle2"})
+
+  console.info("Looking for WOTD section...")
   const section = await page.waitForSelector(imageSelector)
 
-  console.info("Loading waifu info");
+  console.info("Loading waifu details page...")
   await section.click()
   await page.waitForNavigation({waitUntil: "networkidle2"})
 
-  console.info("Collecting waifu data")
+  console.info("Waifu details page loaded, now collecting waifu data...")
 
-  const bioUrl = page.url()
-  console.info("URL: OK...")
+  let bioUrl = page.url()
+  bioUrl = getValidStringOrThrowError(bioUrl, 'bioUrl')
+  console.info(`URL: "${bioUrl}". OK!`)
+  
+  const typeOfCharacterElement = await page.$(typeOfCharacterSelector)
+  const typeOfCharacter = await typeOfCharacterElement.evaluate(el => el.textContent)
+  console.info(`Character tag: "${typeOfCharacter}". OK!`)
 
   const nameElement = await page.$(nameSelector)
-  const name = await page.evaluate(el => el.textContent, nameElement)
-  console.info("Name: OK...")
+  let characterName = await nameElement.evaluate(el => el.textContent)
+  characterName = getValidStringOrThrowError(characterName, 'characterName')
+  const [name, isHusbando] = getNameAndExtractHusbando(characterName, typeOfCharacter)
+  console.info(`Name: "${name}". OK!`)
 
   const imgElement = await page.$(`[alt="${name.trim()}"]`)
-  const imageUrl = await page.evaluate(el => el.src, imgElement)
-  console.info("Image: OK...")
+  let imageUrl = await imgElement.evaluate(el => el.src)
+  imageUrl = getValidStringOrThrowError(imageUrl, 'imageUrl')
+  console.info(`Image: ${imageUrl}. OK!`)
+
+  const descriptionElement = await page.$(descriptionSelector)
+  let description = await descriptionElement.evaluate(el => el.textContent)
+  description = getValidStringOrThrowError(description, 'description')
+  description = getOnlyFirstParagraph(description)
+  console.info(`Description: ${description.length} chars length. OK!`)
 
   const appearsInElement = await page.$(appearsSelector)
-  const appearsIn = await page.evaluate(el => el.textContent, appearsInElement)
-  console.info("Source: OK...")
+  let appearsIn = await appearsInElement.evaluate(el => el.textContent)
+  appearsIn = getValidStringOrThrowError(appearsIn, 'appearsIn')
+  console.info(`Source: ${appearsIn}. OK!`)
 
   const popularityElement = await page.$(popularitySelector)
-  const popularity = await page.evaluate(el => el.textContent.split('#')[1], popularityElement)
-  console.info("Popularity: OK...")
+  let popularity = await popularityElement.evaluate(el => el.textContent.split('#')[1])
+  popularity = getValidStringOrThrowError(popularity, 'popularity')
+  console.info(`Popularity: ${popularity}. OK!`)
 
   const ageElement = await page.$(ageSelector)
-  const age = await page.evaluate(el => el.textContent, ageElement)
-  console.info("Age: OK...")
+  let age = await page.evaluate(el => el.textContent, ageElement)
+  age = getValidStringOrThrowError(age, 'age')
+  console.info(`Age: ${age}. OK!`)
 
-  console.info("Scrapping complete, closing the browser...");
-  await browser.close();
-
+  console.info("Scrapping successful...")
   return {
     name,
+    description,
     imageUrl,
+    isHusbando,
     bioUrl,
     appearsIn,
     popularity,
     age
   }
-};
+}
+
+const getWaifu = async () => {
+  const [browser, page] = await intializeScrapper()
+  let waifuObj, error
+  
+  try {
+    waifuObj = await getWaifuDataFromPage(page)
+  } catch (err) {
+    error = err
+  } finally {
+    console.info("Closing the browser...")
+    await browser.close()
+  }
+
+  if (error) {
+    throw error
+  }
+
+  return waifuObj
+}
 
 module.exports = { getWaifu }
