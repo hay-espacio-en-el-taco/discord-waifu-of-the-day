@@ -1,3 +1,5 @@
+'use strict'
+
 const puppeteer = require('puppeteer') // v13.0.0 or later
 
 /**
@@ -5,7 +7,7 @@ const puppeteer = require('puppeteer') // v13.0.0 or later
  */
 const nameSelector = 'h1'
 const typeOfCharacterSelector = 'h1 #waifu-classification'
-const imageSelector = '#widget-waifu-of-the-day > a > img'
+const imageWOTDLinkSelector = '#widget-waifu-of-the-day > a'
 const popularitySelector = '#popularity-rank'
 const ageSelector = '#age'
 const appearsSelector = '#waifu-core-information > div > div > a'
@@ -16,8 +18,8 @@ const descriptionSelector = '#description'
  */
 const MAX_DESCRIPTION_LIMIT = 300
 const HUSBANDO = 'husbando'
-const waifuURL = "https://mywaifulist.moe/"
-const defaultTimeout = 5000
+const MY_WAIFU_LIST_URL = "https://mywaifulist.moe/"
+const DEFAULT_TIMEOUT = 5000
 
 const getValidStringOrThrowError = (str, fieldName) => {
   if (typeof str !== 'string') {
@@ -32,10 +34,23 @@ const getValidStringOrThrowError = (str, fieldName) => {
   return str
 }
 
+const getValidStringOrNone = (str) => {
+  if (typeof str !== 'string') {
+    return "none"
+  }
+
+  str = str.trim()
+  if (str.length === 0) {
+    return "none"
+  }
+
+  return str
+}
+
 const getNameAndExtractHusbando = (characterName, type) => {
   type = ( String(type) ).trim()
   const name = characterName.replace(type, '')
-  
+
   return [ name.trim(), type.toLowerCase().includes(HUSBANDO) ]
 }
 
@@ -57,34 +72,38 @@ const intializeScrapper = async () => {
   const page = await browser.newPage()
 
   page.setUserAgent("Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36")
-  page.setDefaultTimeout(defaultTimeout)
+  page.setDefaultTimeout(DEFAULT_TIMEOUT)
   await page.setViewport({ "width": 1920, "height": 1080 })
 
   console.info("Scrapper Initialized Successfully!")
   return [browser, page]
 }
 
-const getWaifuDataFromPage = async (page) => {
-  console.info(`Navigating to: ${waifuURL}`)
-  await page.goto(waifuURL, {waitUntil: "networkidle2"})
+const getWOTDUrl = async (page) => {
+  console.info(`Navigating to: ${MY_WAIFU_LIST_URL}`)
+  await page.goto(MY_WAIFU_LIST_URL, {waitUntil: "networkidle2"})
 
   console.info("Looking for WOTD section...")
-  const section = await page.waitForSelector(imageSelector)
+  const sectionWOTD = await page.waitForSelector(imageWOTDLinkSelector)
+  const hrefWOTD = await sectionWOTD.evaluate(el => el.getAttribute("href"))
 
-  console.info("Loading waifu details page...")
-  await section.click()
-  await page.waitForNavigation({waitUntil: "networkidle2"})
+  return (new URL(hrefWOTD, MY_WAIFU_LIST_URL)).href
+}
+
+const getWaifuDataFromPage = async (page, waifuUrl) => {
+  console.info(`Navigating to waifu details page: ${waifuUrl}`)
+  await page.goto(waifuUrl, {waitUntil: "networkidle2"})
 
   console.info("Waifu details page loaded, now collecting waifu data...")
 
   let bioUrl = page.url()
   bioUrl = getValidStringOrThrowError(bioUrl, 'bioUrl')
   console.info(`URL: "${bioUrl}". OK!`)
-  
+
   const typeOfCharacterElement = await page.$(typeOfCharacterSelector)
   let typeOfCharacter = null
   if (typeOfCharacterElement) {
-    await typeOfCharacterElement.evaluate(el => el.textContent)
+    typeOfCharacter = await typeOfCharacterElement.evaluate(el => el.textContent)
   }
   console.info(`Character tag: "${typeOfCharacter}". OK!`)
 
@@ -117,7 +136,7 @@ const getWaifuDataFromPage = async (page) => {
 
   const ageElement = await page.$(ageSelector)
   let age = await page.evaluate(el => el.textContent, ageElement)
-  age = getValidStringOrThrowError(age, 'age')
+  age = getValidStringOrNone(age)
   console.info(`Age: ${age}. OK!`)
 
   console.info("Scrapping successful...")
@@ -136,9 +155,10 @@ const getWaifuDataFromPage = async (page) => {
 const getWaifu = async () => {
   const [browser, page] = await intializeScrapper()
   let waifuObj, error
-  
+
   try {
-    waifuObj = await getWaifuDataFromPage(page)
+    const waifuUrl = await getWOTDUrl(page)
+    waifuObj = await getWaifuDataFromPage(page, waifuUrl)
   } catch (err) {
     error = err
   } finally {
@@ -153,4 +173,9 @@ const getWaifu = async () => {
   return waifuObj
 }
 
-module.exports = { getWaifu }
+module.exports = {
+  intializeScrapper,
+  getWOTDUrl,
+  getWaifuDataFromPage,
+  getWaifu,
+}

@@ -1,3 +1,5 @@
+'use strict'
+
 const fetch = require('node-fetch')
 
 const post = (data, url) => {
@@ -10,8 +12,7 @@ const post = (data, url) => {
   }).then(response => console.info('Success:', response));
 }
 
-const sendDiscordMessage = async waifu => {
-  const url = process.env.WEB_HOOK_URL
+const sendDiscordMessage = async (waifu, url) => {
   const characterType = waifu.isHusbando ? 'husbando' : 'waifu'
 
   const embededPost = {
