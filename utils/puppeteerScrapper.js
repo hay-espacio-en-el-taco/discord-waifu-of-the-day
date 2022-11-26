@@ -82,7 +82,10 @@ const getWaifuDataFromPage = async (page) => {
   console.info(`URL: "${bioUrl}". OK!`)
   
   const typeOfCharacterElement = await page.$(typeOfCharacterSelector)
-  const typeOfCharacter = await typeOfCharacterElement.evaluate(el => el.textContent)
+  let typeOfCharacter = null
+  if (typeOfCharacterElement) {
+    await typeOfCharacterElement.evaluate(el => el.textContent)
+  }
   console.info(`Character tag: "${typeOfCharacter}". OK!`)
 
   const nameElement = await page.$(nameSelector)
